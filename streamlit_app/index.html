@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Portfolio Chatbot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+
+    <style>
+        /* ----- Global Resets & Base ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #d1d7db; /* Light grey background for the page */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ----- Chat Application Container ----- */
+        .chat-app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 95vh;
+            max-height: 800px;
+            background-color: #f0f0f0; /* Fallback if wallpaper doesn't load */
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ----- Chat Header ----- */
+        .chat-header {
+            background-color: #075E54; /* WhatsApp Green */
+            color: white;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .chat-header .back-arrow {
+            font-size: 24px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .chat-header .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc; /* Fallback background for the pic area */
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Clips the image to the circle */
+        }
+        .chat-header .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the area, crops if necessary */
+        }
+
+        .chat-header .header-text {
+            flex-grow: 1;
+        }
+
+        .chat-header .header-text h3 {
+            font-size: 1.1em;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .chat-header .status {
+            font-size: 0.8em;
+            opacity: 0.8; 
+            margin: 0;
+            transition: opacity 0.3s ease-in-out; 
+        }
+
+        .chat-header .header-icons {
+            display: flex;
+            align-items: center;
+        }
+        .chat-header .header-icons .material-symbols-outlined {
+            font-size: 24px;
+            margin-left: 18px;
+            cursor: pointer;
+        }
+
+        /* ----- Chat Messages Area ----- */
+        .chat-messages {
+            flex-grow: 1;
+            padding: 10px 10px 10px 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px; 
+            background-image: url("./chat-wallpaper.jpg"); /* CHAT WALLPAPER STYLES */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            position: relative;
+            z-index: 0;
+        }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+        .chat-messages::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.3); border-radius: 3px; }
+
+        .date-separator {
+            align-self: center;
+            background-color: rgba(225, 242, 251, 0.85);
+            color: #50656f;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75em;
+            margin: 15px 0;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .message-bubble {
+            padding: 7px 10px;
+            max-width: 75%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+
+        .message-bubble.user {
+            background-color: #DCF8C6; 
+            color: #303030;
+            align-self: flex-end;
+            border-radius: 8px; 
+            margin-right: 10px; 
+        }
+
+        .message-bubble.bot,
+        .message-bubble.typing-indicator { 
+            background-color: #FFFFFF; 
+            color: #303030;
+            align-self: flex-start;
+            border-radius: 8px; 
+            margin-left: 10px; 
+        }
+
+        .message-bubble.bot::before,
+        .message-bubble.typing-indicator::before {
+            content: ""; position: absolute; top: 10px; left: -8px;     
+            width: 0; height: 0; border-style: solid;
+            border-width: 5px 8px 5px 0; 
+            border-color: transparent #FFFFFF transparent transparent; 
+        }
+
+        .message-bubble.user::before {
+            content: ""; position: absolute; top: 10px; right: -8px;   
+            width: 0; height: 0; border-style: solid;
+            border-width: 5px 0 5px 8px; 
+            border-color: transparent transparent transparent #DCF8C6; 
+        }
+
+        .message-bubble .text-content { padding-right: 50px; white-space: pre-wrap; }
+        .message-bubble .text-content a { color: #007bff; text-decoration: underline; }
+        .message-bubble.user .text-content a { color: #056162; }
+        .message-bubble .timestamp { font-size: 0.7rem; color: #667781; position: absolute; bottom: 5px; right: 10px; }
+
+        .message-bubble.typing-indicator { padding: 10px 12px; min-height: 30px; }
+        .typing-dots { display: flex; align-items: center; }
+        .typing-dots span {
+            height: 8px; width: 8px; background-color: #8E8E8E; 
+            border-radius: 50%; display: inline-block; margin: 0 2px;
+            animation: typing-bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing-bounce {
+            0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+            40% { transform: scale(1.0); opacity: 1; }
+        }
+
+        /* ----- Chat Input Area ----- */
+        .chat-input-area {
+            display: flex;
+            padding: 8px 10px;
+            background-color: #F0F0F0;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative; /* For positioning the emoji picker */
+            z-index: 2;
+        }
+
+        .chat-input-area .input-icons { color: #54656f; font-size: 24px; margin: 0 6px; cursor: pointer; }
+
+        .chat-input-area .message-input-wrapper {
+            flex-grow: 1; background-color: #FFFFFF; border-radius: 20px;
+            padding: 0 8px; display: flex; align-items: center; min-height: 40px;
+        }
+        .chat-input-area .message-input-wrapper .input-icons.smiley { margin-left: 4px; margin-right: 8px; }
+        .chat-input-area input[type="text"] {
+            flex-grow: 1; border: none; outline: none; font-size: 0.95em;
+            background-color: transparent; padding: 8px 0;
+        }
+        .chat-input-area .input-icons.attach-camera { margin-left: 10px; }
+
+        .chat-input-area button.send-button {
+            background-color: #008069; color: white; border: none; border-radius: 50%;
+            width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background-color 0.2s ease; flex-shrink: 0; margin-left: 8px;
+        }
+        .chat-input-area button.send-button:hover { background-color: #00735C; }
+        .chat-input-area button.send-button .material-symbols-outlined { font-size: 22px; }
+        
+        /* Emoji Picker Styling */
+        #emojiPicker {
+            position: absolute;
+            bottom: 55px; /* Adjust to be above the input area */
+            left: 5px;
+            z-index: 1000; /* Ensure it's on top */
+            border-radius: 8px;
+            box-shadow: 0px -2px 10px rgba(0,0,0,0.1); /* Shadow for picker popping up */
+        }
+
+        @media (max-width: 360px) {
+            .chat-app-container { height: 100vh; max-height: none; border-radius: 0; box-shadow: none; }
+            .chat-header .header-icons .material-symbols-outlined { margin-left: 12px; font-size: 22px; }
+            .message-bubble { font-size: 0.85em; }
+            .chat-input-area input[type="text"] { font-size: 0.9em; }
+            #emojiPicker { width: calc(100% - 10px); /* Make picker responsive */ }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-app-container">
+        <div class="chat-header">
+            <span class="material-symbols-outlined back-arrow">arrow_back</span>
+            <div class="profile-pic">
+                <img src="./profile.jpg" alt="Profile"> 
+            </div>
+            <div class="header-text">
+                <h3>Dhinesh's AI Asst.</h3>
+                <p class="status">Online</p> 
+            </div>
+            <div class="header-icons">
+                <span class="material-symbols-outlined">videocam</span>
+                <span class="material-symbols-outlined">call</span>
+                <span class="material-symbols-outlined">more_vert</span>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <div class="chat-input-area">
+            <div class="message-input-wrapper">
+                <span class="material-symbols-outlined input-icons smiley" id="emojiButton">mood</span>
+                <input type="text" id="userInput" placeholder="Message">
+                <span class="material-symbols-outlined input-icons attach-camera">attach_file</span>
+                <span class="material-symbols-outlined input-icons attach-camera" style="margin-left:12px; margin-right:4px;">photo_camera</span>
+            </div>
+            <button id="sendButton" class="send-button" aria-label="Send message">
+                <span class="material-symbols-outlined">send</span>
+            </button>
+            <emoji-picker class="light" id="emojiPicker" style="display: none;"></emoji-picker>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const statusElement = document.querySelector('.chat-header .status'); 
+            const emojiButton = document.getElementById('emojiButton'); // Get emoji button
+            const emojiPicker = document.getElementById('emojiPicker'); // Get emoji picker
+
+
+            const FASTAPI_ENDPOINT = "http://localhost:8000/chat"; 
+            const TYPING_INDICATOR_ID = "bot-typing-indicator";
+
+            // Helper function to insert text at the cursor position
+            function insertAtCursor(myField, myValue) {
+                if (document.selection) { // IE
+                    myField.focus();
+                    let sel = document.selection.createRange();
+                    sel.text = myValue;
+                } else if (myField.selectionStart || myField.selectionStart === 0) { // Modern browsers
+                    let startPos = myField.selectionStart;
+                    let endPos = myField.selectionEnd;
+                    myField.value = myField.value.substring(0, startPos) +
+                        myValue +
+                        myField.value.substring(endPos, myField.value.length);
+                    myField.selectionStart = startPos + myValue.length;
+                    myField.selectionEnd = startPos + myValue.length;
+                } else { // Fallback
+                    myField.value += myValue;
+                }
+                myField.focus();
+                // Trigger input event for any listeners
+                myField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            // --- Emoji Picker Logic ---
+            if (emojiButton && emojiPicker) {
+                emojiButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); 
+                    const isVisible = emojiPicker.style.display === 'block';
+                    emojiPicker.style.display = isVisible ? 'none' : 'block';
+                });
+
+                emojiPicker.addEventListener('emoji-click', event => {
+                    const emoji = event.detail.unicode;
+                    insertAtCursor(userInput, emoji);
+                    userInput.focus(); 
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (emojiPicker.style.display === 'block' &&
+                        !emojiPicker.contains(event.target) &&
+                        event.target !== emojiButton) {
+                        emojiPicker.style.display = 'none';
+                    }
+                });
+            }
+            // --- End Emoji Picker Logic ---
+
+            function addMessageToChat(sender, messageText) {
+                hideTypingIndicator(); 
+
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add('message-bubble', sender); 
+
+                const textElement = document.createElement('div'); 
+                textElement.classList.add('text-content');
+                
+                const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\bwww\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                if (typeof messageText === 'string' && messageText.match(urlRegex)) {
+                    textElement.innerHTML = messageText.replace(urlRegex, function(url) {
+                        let fullUrl = url;
+                        if (!url.startsWith('http') && url.startsWith('www')) {
+                            fullUrl = 'http://' + url;
+                        }
+                        return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+                    });
+                } else {
+                    textElement.textContent = messageText;
+                }
+                messageBubble.appendChild(textElement);
+
+                if (sender !== 'typing-indicator') {
+                    const timestampElement = document.createElement('span');
+                    timestampElement.classList.add('timestamp');
+                    timestampElement.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); 
+                    messageBubble.appendChild(timestampElement);
+                }
+                
+                chatMessages.appendChild(messageBubble);
+                scrollToBottom();
+            }
+
+            function showTypingIndicator() {
+                if (document.getElementById(TYPING_INDICATOR_ID)) {
+                    return; 
+                }
+                const indicatorBubble = document.createElement('div');
+                indicatorBubble.classList.add('message-bubble', 'bot', 'typing-indicator');
+                indicatorBubble.id = TYPING_INDICATOR_ID;
+                const dotsWrapper = document.createElement('div');
+                dotsWrapper.classList.add('typing-dots'); 
+                dotsWrapper.innerHTML = `<span></span><span></span><span></span>`;
+                indicatorBubble.appendChild(dotsWrapper); 
+                chatMessages.appendChild(indicatorBubble);
+                scrollToBottom();
+                if (statusElement) { 
+                    statusElement.textContent = 'typing...';
+                    statusElement.style.opacity = '1'; 
+                }
+            }
+
+            function hideTypingIndicator() {
+                const indicator = document.getElementById(TYPING_INDICATOR_ID);
+                if (indicator) {
+                    indicator.remove();
+                }
+                if (statusElement) { 
+                    statusElement.textContent = 'Online';
+                    statusElement.style.opacity = '0.8'; 
+                }
+            }
+
+            async function sendMessageToServer(message) {
+                addMessageToChat('user', message);
+                userInput.value = ''; 
+                userInput.focus(); 
+                showTypingIndicator(); 
+                const thinkingStartTime = Date.now();
+                let botResponseText;
+                try {
+                    const response = await fetch(FASTAPI_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', },
+                        body: JSON.stringify({ user_message: message, session_id: "web_session" }),
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => null); 
+                        const detail = errorData?.detail || `HTTP error! status: ${response.status}`;
+                        botResponseText = `Sorry, there was an issue connecting. ${detail}`;
+                        console.error('Server error:', botResponseText);
+                    } else {
+                        const data = await response.json();
+                        botResponseText = data.bot_response;
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    botResponseText = `Sorry, there was an issue connecting. ${error.message}`;
+                } finally {
+                    const processingEndTime = Date.now();
+                    const elapsedTime = processingEndTime - thinkingStartTime;
+                    const remainingDelay = Math.max(0, 2000 - elapsedTime);
+                    setTimeout(() => {
+                        addMessageToChat('bot', botResponseText); 
+                    }, remainingDelay);
+                }
+            }
+
+            function scrollToBottom() {
+                setTimeout(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }, 50);
+            }
+
+            sendButton.addEventListener('click', () => {
+                const messageVal = userInput.value.trim();
+                if (messageVal) { sendMessageToServer(messageVal); }
+            });
+
+            userInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    const messageVal = userInput.value.trim();
+                    if (messageVal) { sendMessageToServer(messageVal); }
+                }
+            });
+            
+            setTimeout(() => {
+                 addMessageToChat('bot', "Hello! I am a chatbot representing Mr. Dhinesh E. Feel free to ask any professional questions about him");
+            }, 500); 
+            userInput.focus(); 
+        });
+    </script>
+</body>
+</html>
