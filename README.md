@@ -1,4 +1,4 @@
-# BytePersona
+# BytePersona - The Code-Driven Extension of Who I Am!
 
 **BytePersona** is a smart portfolio chatbot interface designed to represent Mr. Dhinesh E in a conversational manner. It uses a custom HTML/CSS/JS frontend mimicking WhatsApp's UI and interacts with a FastAPI backend powered by a Prolog knowledge base.
 
@@ -66,8 +66,7 @@ This project is licensed under the MIT License.
 
 ## ✨ Credits
 
-Developed by Dhinesh E  
-Backend logic influenced by Tharik MCA's `BytePersona` Prolog architecture.
+Developed by Dhinesh E .
 
 ---
 
