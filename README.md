@@ -1,69 +1,74 @@
 # BytePersona
 
-**BytePersona** is a modular AI-driven application designed to create personalized digital personas. It combines a backend API with a Streamlit-based frontend, enabling users to interact with AI-generated personas seamlessly.
+**BytePersona** is a smart portfolio chatbot interface designed to represent Mr. Dhinesh E in a conversational manner. It uses a custom HTML/CSS/JS frontend mimicking WhatsApp's UI and interacts with a FastAPI backend powered by a Prolog knowledge base.
 
-## 🚀 Features
+## 💬 What It Does
 
-- **Backend API**: Handles data processing, persona generation, and serves as the core engine of the application.
-- **Streamlit Frontend**: Provides an intuitive user interface for interacting with generated personas.
-- **Modular Architecture**: Separation of concerns between backend and frontend for scalability and maintainability.
+- Answers questions about Dhinesh E's personal, academic, and technical background.
+- Parses user messages and generates contextual responses.
+- Handles greetings, heart emojis, and factual queries using Prolog.
+- Provides an engaging chat-like user experience via a WhatsApp-style interface.
+
+## 🧠 How It Works
+
+### Frontend (📱 `index.html`)
+- Designed to look and feel like WhatsApp.
+- Written in HTML, CSS, and vanilla JavaScript.
+- Sends messages to the FastAPI backend and renders responses dynamically.
+- Includes features like:
+  - Emoji picker
+  - Typing indicator
+  - Link parsing
+  - Responsive design
+
+### Backend (⚙️ `main.py`)
+- Built with FastAPI.
+- Consults `knowledge_base.pl` using `pyswip` (SWI-Prolog bridge).
+- Uses CORS to communicate with the frontend.
+- Handles different user intents like:
+  - Personal info (name, email, location, etc.)
+  - Education and CGPA
+  - Projects and certifications
+  - Skills and hobbies
+  - Greetings and emojis
 
 ## 📁 Project Structure
 
 ```
 BytePersona/
-├── backend_api/       # Backend API codebase
-└── streamlit_app/     # Streamlit frontend application
+├── index.html            # WhatsApp-style chatbot UI
+├── main.py               # FastAPI server with Prolog integration
+└── knowledge_base.pl     # Prolog facts and rules about Dhinesh E
 ```
 
-## 🔧 Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Python 3.7 or higher
-- Recommended: Virtual environment tool (e.g., `venv`, `conda`)
+- Python 3.7+
+- SWI-Prolog installed and in your system PATH
+- `pip install -r requirements.txt` with `fastapi`, `uvicorn`, and `pyswip`
 
-### Installation
+### Running Locally
 
-1. **Clone the repository:**
+1. Start the FastAPI backend:
    ```bash
-   git clone https://github.com/dhinesh7-cit/BytePersona.git
-   cd BytePersona
+   uvicorn main:app --reload
    ```
 
-2. **Set up and run the backend API:**
-   ```bash
-   cd backend_api
-   pip install -r requirements.txt
-   python app.py
-   ```
+2. Open the `index.html` file in a browser (served via localhost or directly).
 
-3. **Set up and run the Streamlit frontend:**
-   ```bash
-   cd ../streamlit_app
-   pip install -r requirements.txt
-   streamlit run app.py
-   ```
-
-*Ensure that the backend API is running before launching the Streamlit app.*
-
-## 🛠️ Technologies Used
-
-- **Backend**: Python, Flask/FastAPI (depending on implementation)
-- **Frontend**: Streamlit
-- **AI/ML**: OpenAI GPT models (or other NLP models)
-- **Others**: Docker (optional for containerization), Git
+> 🔗 Make sure the backend is accessible at `http://localhost:8000/chat` or change the endpoint in `index.html`.
 
 ## 📄 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🤝 Contributing
+## ✨ Credits
 
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
-
-## 📬 Contact
-
-For questions or suggestions, please open an issue or contact [Dhinesh E](https://github.com/dhinesh7-cit).
+Developed by Dhinesh E  
+Backend logic influenced by Tharik MCA's `BytePersona` Prolog architecture.
 
 ---
+
+Enjoy chatting with BytePersona! 🤖💬
